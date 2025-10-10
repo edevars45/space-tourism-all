@@ -2,34 +2,44 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest; // Je pars d'une FormRequest
-use Illuminate\Validation\Rules\Password;   // J'utilise la règle Password fluide
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class UserStoreRequest extends FormRequest
 {
-    // J'autorise la requête (je gère l'accès via middleware de route)
     public function authorize(): bool { return true; }
 
-    // Je définis mes règles de validation pour la création
     public function rules(): array
     {
         return [
-            'name' => ['required','string','max:255'],                               // Je demande un nom non vide
-            'email' => ['required','string','email','max:255','unique:users,email'], // J'impose un email unique
-            'password' => ['required', Password::min(8)->letters()->numbers(), 'confirmed'], // Je sécurise le mot de passe
-            'roles' => ['required','array','min:1'],                                  // Je demande au moins un rôle
-            'roles.*' => ['string','exists:roles,name'],                              // Je vérifie que chaque rôle existe
+            'name'     => ['required','string','max:255'],
+            'email'    => ['required','string','email','max:255','unique:users,email'],
+            // mot de passe requis en création, 8+ et au moins un chiffre
+            'password' => ['required', Password::min(8)->letters()->numbers(), 'confirmed'],
+            'roles'    => ['required','array','min:1'],
+            'roles.*'  => ['string','exists:roles,name'],
         ];
     }
 
-    // Je personnalise les libellés affichés dans les messages d'erreur
     public function attributes(): array
     {
         return [
-            'name' => 'nom',
-            'email' => 'email',
+            'name'     => 'nom',
+            'email'    => 'email',
             'password' => 'mot de passe',
-            'roles' => 'rôles',
+            'roles'    => 'rôles',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
+            'password.min'       => 'Le mot de passe doit contenir au moins :min caractères.',
+            // Message générique si la règle Password échoue (ex: aucun chiffre)
+            'password.*'         => 'Le mot de passe doit contenir au moins 8 caractères, des lettres et au moins un chiffre.',
+            'roles.required'     => 'Je dois sélectionner au moins un rôle.',
+            'roles.*.exists'     => 'Le rôle sélectionné est invalide.',
         ];
     }
 }

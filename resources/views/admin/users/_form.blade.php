@@ -1,43 +1,34 @@
-{{-- Je protège la soumission avec un token CSRF --}}
+cat > resources/views/admin/users/_form.blade.php <<'BLADE'
 @csrf
 
-{{-- Champ nom --}}
+{{-- Nom --}}
 <div class="mb-3">
     <label class="form-label">Nom</label>
-    <input type="text" name="name" class="form-control"
-           value="{{ old('name', $user->name ?? '') }}" required>
+    <input type="text" name="name" class="form-control" value="{{ old('name', $user->name ?? '') }}" required>
     @error('name')<div class="text-danger small">{{ $message }}</div>@enderror
 </div>
 
-{{-- Champ email --}}
+{{-- Email --}}
 <div class="mb-3">
     <label class="form-label">Email</label>
-    <input type="email" name="email" class="form-control"
-           value="{{ old('email', $user->email ?? '') }}" required>
+    <input type="email" name="email" class="form-control" value="{{ old('email', $user->email ?? '') }}" required>
     @error('email')<div class="text-danger small">{{ $message }}</div>@enderror
 </div>
 
-{{-- Champ mot de passe --}}
+{{-- Mot de passe --}}
 <div class="mb-3">
-    <label class="form-label">
-        Mot de passe
-        @isset($user)
-            <small>(laisser vide pour ne pas changer)</small>
-        @endisset
-    </label>
-    <input type="password" name="password" class="form-control"
-           @empty($user) required @endempty>
+    <label class="form-label">Mot de passe @isset($user)<small>(laisser vide pour ne pas changer)</small>@endisset</label>
+    <input type="password" name="password" class="form-control" @empty($user) required @endempty>
     @error('password')<div class="text-danger small">{{ $message }}</div>@enderror
 </div>
 
-{{-- Champ confirmation mot de passe --}}
+{{-- Confirmation --}}
 <div class="mb-3">
     <label class="form-label">Confirmation mot de passe</label>
-    <input type="password" name="password_confirmation" class="form-control"
-           @empty($user) required @endempty>
+    <input type="password" name="password_confirmation" class="form-control" @empty($user) required @endempty>
 </div>
 
-{{-- Cases à cocher des rôles --}}
+{{-- Rôles --}}
 <div class="mb-3">
     <label class="form-label">Rôles</label>
     <div class="d-flex gap-3 flex-wrap">
@@ -54,8 +45,8 @@
     @error('roles')<div class="text-danger small">{{ $message }}</div>@enderror
 </div>
 
-{{-- Boutons d'action --}}
 <div class="mt-3">
     <button class="btn btn-primary">Enregistrer</button>
     <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">Annuler</a>
 </div>
+BLADE

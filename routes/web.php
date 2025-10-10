@@ -1,112 +1,128 @@
 <?php
 
-use Illuminate\Support\Facades\Route; // J'importe l'API de routing Laravel
-use Illuminate\Support\Facades\App; // J'importe App pour changer la langue
-use Illuminate\Support\Facades\Session; // J'importe Session pour stocker la langue
+use Illuminate\Support\Facades\Route;     // j’utilise l’API de routing Laravel
+use Illuminate\Support\Facades\App;       // je peux forcer la langue (switch)
+use Illuminate\Support\Facades\Session;   // je stocke la langue en session
 
-// J'importe mes contrôleurs publics
+// Pages publiques (maquette)
 use App\Http\Controllers\DestinationsController;
 use App\Http\Controllers\PublicCrewController;
 
-// J'importe le contrôleur du profil Breeze
+// Espace authentifié (Breeze)
 use App\Http\Controllers\ProfileController;
 
-// J'importe les contrôleurs du back-office
-use App\Http\Controllers\Admin\TechnologyController;
+// Back-office (Partie 07)
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\TechnologyController;
 
 /*
 |--------------------------------------------------------------------------
-| Pages publiques (accès libre)
+| 1) Pages publiques (accès libre)
 |--------------------------------------------------------------------------
+| Je déclare les pages visibles sans authentification.
 */
 
-// Je définis la route de la page d'accueil
-Route::view('/', 'pages.home')->name('home');
+Route::view('/', 'pages.home')->name('home'); // home
 
-// Je redirige /destinations vers /destinations/moon
+// Destinations : je redirige /destinations vers /destinations/moon
 Route::redirect('/destinations', '/destinations/moon')->name('destinations');
-
-// J'affiche une destination selon le segment {planet?}
 Route::get('/destinations/{planet?}', [DestinationsController::class, 'show'])
     ->name('destinations.show');
 
-// J'affiche l'équipage côté public
+// Équipage public (fallback i18n si BDD vide)
 Route::get('/crew', [PublicCrewController::class, 'index'])->name('crew');
 
-// Je garde la page de maquette Technologies
+// Technologies publiques (page maquette)
 Route::view('/technology', 'pages.technology')->name('technology');
+
 
 /*
 |--------------------------------------------------------------------------
-| Espace authentifié (Breeze)
+| 2) Espace authentifié (Breeze)
 |--------------------------------------------------------------------------
+| Je protège dashboard et le profil avec le middleware 'auth'.
 */
 
-// Je protège les routes dashboard et profil par 'auth'
 Route::middleware('auth')->group(function () {
-    // J'utilise la home comme dashboard pour simplifier
+    // pour le TP, je réutilise la home comme dashboard
     Route::view('/dashboard', 'pages.home')->name('dashboard');
 
-    // Je gère l'édition de profil Breeze
+    // gestion du profil (Breeze)
     Route::get('/profile',  [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile',[ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Je charge les routes d'authentification Breeze (login, register, etc.)
+// routes Breeze : login, register, reset, email verify, etc.
 require __DIR__.'/auth.php';
+
 
 /*
 |--------------------------------------------------------------------------
-| Commutateur de langue FR/EN
+| 3) Commutateur de langue FR/EN
 |--------------------------------------------------------------------------
+| Je force la locale souhaitée et je la stocke en session.
 */
 
-// Je stocke la langue en session et je la pousse dans App::setLocale()
 Route::get('/lang/{locale}', function (string $locale) {
-    // Je sécurise la langue attendue
+    // je limite aux langues supportées
     abort_unless(in_array($locale, ['fr','en']), 404);
-    // Je mémorise la langue en session
+
+    // je mémorise et j’applique la langue
     Session::put('locale', $locale);
-    // J'applique la langue courante à l'exécution
     App::setLocale($locale);
-    // Je reviens sur la page précédente
+
+    // je reviens sur la page précédente
     return back();
 })->name('lang.switch');
 
+
 /*
 |--------------------------------------------------------------------------
-| Back-office (Partie 07)
+| 4) Back-office (Partie 07) — auth + verified
 |--------------------------------------------------------------------------
-|
-| Je regroupe les routes /admin derrière 'auth' et 'verified'.
-| Ensuite, je segmente par rôle/permission avec Spatie.
-|
+| Toutes les routes /admin exigent un compte connecté ET vérifié.
+| Ensuite je segmente par rôle/permission via Spatie.
 */
 
-Route::prefix('admin') // Je préfixe toutes les routes par /admin
-    ->name('admin.') // Je préfixe tous les noms par admin.
-    ->middleware(['auth', 'verified']) // J'exige une session et un email vérifié
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'verified'])
     ->group(function () {
 
-        // Gestion des UTILISATEURS — réservé aux Administrateurs
+        /*
+        |------------------------------------------------------------------
+        | 5) Utilisateurs — réservé aux Administrateurs
+        |------------------------------------------------------------------
+        | Seuls les Admins voient et utilisent le CRUD des utilisateurs.
+        */
         Route::middleware(['role:Administrateur'])->group(function () {
-            // Je génère toutes les routes REST sauf 'show'
             Route::resource('users', UserController::class)->except(['show']);
+            // routes générées : admin.users.index/create/store/edit/update/destroy
         });
 
-        // Gestion des TECHNOLOGIES — protégé par la permission dédiée
+        /*
+        |------------------------------------------------------------------
+        | 6) Technologies — protégé par la permission dédiée
+        |------------------------------------------------------------------
+        | Toute personne disposant de 'technologies.manage' accède au CRUD.
+        | Je conserve aussi les routes d’actions additionnelles.
+        */
         Route::middleware(['permission:technologies.manage'])->group(function () {
-            // Je génère le CRUD des technologies côté back-office
             Route::resource('technologies', TechnologyController::class)->except(['show']);
-
-            // Je garde les routes complémentaires d'ordre et d'actions groupées
             Route::post('technologies/{technology}/move-up',   [TechnologyController::class, 'moveUp'])->name('technologies.moveUp');
             Route::post('technologies/{technology}/move-down', [TechnologyController::class, 'moveDown'])->name('technologies.moveDown');
             Route::post('technologies/bulk',                   [TechnologyController::class, 'bulk'])->name('technologies.bulk');
             Route::post('technologies/reorder',                [TechnologyController::class, 'reorder'])->name('technologies.reorder');
         });
 
-        // Si je veux segmenter Planètes/Équipage, je reproduis le même schéma avec leurs permissions
-});
+        /*
+        |------------------------------------------------------------------
+        | 7) (Option) Autres modules back-office
+        |------------------------------------------------------------------
+        | Si je gère Planètes/Équipage en BDD, je reproduis exactement
+        | le même schéma :
+        |  - role:Gestionnaire Planètes  OU permission:planets.manage
+        |  - role:Gestionnaire Équipage OU permission:crew.manage
+        */
+    });

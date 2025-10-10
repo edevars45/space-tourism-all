@@ -2,27 +2,47 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest; // Je pars d'une FormRequest
-use Illuminate\Validation\Rules\Password;   // J'utilise la règle Password fluide
-use Illuminate\Validation\Rule;             // Je vais ignorer l'email courant
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
 
 class UserUpdateRequest extends FormRequest
 {
-    // J'autorise la requête (je gère l'accès via middleware de route)
     public function authorize(): bool { return true; }
 
-    // Je définis mes règles de validation pour la mise à jour
     public function rules(): array
     {
-        // Je récupère l'identifiant lié au paramètre de route {user}
-        $id = $this->route('user');
+        // route-model binding -> je récupère l'id proprement
+        $userId = $this->route('user')?->id ?? $this->route('user');
 
         return [
-            'name' => ['required','string','max:255'],                                         // Je demande un nom
-            'email' => ['required','string','email','max:255', Rule::unique('users','email')->ignore($id)], // Je garde l'unicité, en ignorant l'utilisateur courant
-            'password' => ['nullable', Password::min(8)->letters()->numbers(), 'confirmed'],   // Je rends le mot de passe optionnel
-            'roles' => ['required','array','min:1'],                                           // Je demande au moins un rôle
-            'roles.*' => ['string','exists:roles,name'],                                       // Je valide chaque rôle
+            'name'     => ['required','string','max:255'],
+            'email'    => ['required','string','email','max:255', Rule::unique('users','email')->ignore($userId)],
+            // mot de passe optionnel en édition, même politique si fourni
+            'password' => ['nullable', Password::min(8)->letters()->numbers(), 'confirmed'],
+            'roles'    => ['required','array','min:1'],
+            'roles.*'  => ['string','exists:roles,name'],
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'name'     => 'nom',
+            'email'    => 'email',
+            'password' => 'mot de passe',
+            'roles'    => 'rôles',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
+            'password.min'       => 'Le mot de passe doit contenir au moins :min caractères.',
+            'password.*'         => 'Le mot de passe doit contenir au moins 8 caractères, des lettres et au moins un chiffre.',
+            'roles.required'     => 'Je dois sélectionner au moins un rôle.',
+            'roles.*.exists'     => 'Le rôle sélectionné est invalide.',
         ];
     }
 }
