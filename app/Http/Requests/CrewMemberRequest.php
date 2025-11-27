@@ -14,7 +14,7 @@ class CrewMemberRequest extends FormRequest
 
     public function rules(): array
     {
-        $memberId = $this->route('crew')?->id; // paramètre {crew}
+        $memberId = $this->route('crew')?->id;
 
         return [
             'name'       => ['required', 'string', 'max:255'],
@@ -23,11 +23,11 @@ class CrewMemberRequest extends FormRequest
                 Rule::unique('crew_members', 'slug')->ignore($memberId),
             ],
             'role'       => ['required', 'string', 'max:255'],
+            'role_en'    => ['nullable', 'string', 'max:255'],
             'order'      => ['nullable', 'integer', 'min:0'],
             'bio'        => ['nullable', 'string'],
+            'bio_en'     => ['nullable', 'string'],
             'published'  => ['sometimes', 'boolean'],
-
-            // Si tu gères l’upload (ton contrôleur le fait) :
             'image'      => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
