@@ -2,52 +2,83 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Planet;
+use Illuminate\Support\Facades\App;
+use Illuminate\View\View;
 
 class DestinationsController extends Controller
 {
-    // Je choisis un ordre d’onglets fixe, identique FR/EN.
-    private array $order = ['moon','mars','europa','titan'];
-
     /**
-     * Page /destinations/{planet?}
-     * - Je lis les données dans les fichiers de langue (FR/EN).
-     * - Je valide le slug et je fournis à la vue : slug courant, data, liste.
+     * J’affiche la page /destinations/{planet?}.
+     * Je lis les planètes dans la base (table planets).
+     * Je choisis la langue FR/EN en fonction de App::getLocale().
      */
-    public function show(Request $request, string $planet = 'moon')
+    public function show(?string $planetSlug = 'moon'): View
     {
-        // 1) Je récupère les données traduites
-        $all = __('destinations.planets');   // tableau associatif
-        if (!is_array($all) || empty($all)) {
-            abort(500, 'Missing i18n data for destinations.');
+        // Je récupère la langue courante (fr ou en).
+        $locale = App::getLocale();
+
+        // Ici je mets le code dont tu parles :
+        // je récupère toutes les planètes publiées, triées par "order".
+        $planets = Planet::query()
+            ->where('is_published', true)  // colonne is_published dans la table planets
+            ->orderBy('order')             // colonne order dans la table planets
+            ->get();
+
+        // Si je n’ai aucune planète publiée, je renvoie une erreur simple.
+        if ($planets->isEmpty()) {
+            abort(404, 'Aucune planète publiée dans la base.');
         }
 
-        // 2) Je nettoie l’ordre en fonction des clés réellement présentes
-        $planets = [];
-        foreach ($this->order as $slug) {
-            if (isset($all[$slug])) {
-                $planets[$slug] = $all[$slug];
-            }
-        }
-        // Si jamais des clés supplémentaires existent, je les ajoute en fin
-        foreach ($all as $slug => $data) {
-            if (!isset($planets[$slug])) {
-                $planets[$slug] = $data;
-            }
+        // Je cherche la planète courante par slug (moon, mars, europa, titan…).
+        $current = $planetSlug
+            ? $planets->firstWhere('slug', $planetSlug)
+            : null;
+
+        // Si le slug est invalide ou absent, je prends la première planète.
+        if (!$current) {
+            $current = $planets->first();
         }
 
-        // 3) Validation du slug
-        if (!array_key_exists($planet, $planets)) {
-            $planet = array_key_first($planets); // fallback moon
+        // Je construis le tableau $data comme ta vue Blade l’attend (name, desc, distance, time).
+        $data = [
+            'name' => $locale === 'en'
+                ? ($current->name_en ?: $current->name)
+                : $current->name,
+
+            'desc' => $locale === 'en'
+                ? ($current->description_en ?: $current->description)
+                : $current->description,
+
+            'distance' => $current->distance,
+            'time'     => $current->travel_time,
+        ];
+
+        // Je prépare aussi un tableau $allPlanets pour les onglets dans la vue.
+        $allPlanets = [];
+        foreach ($planets as $p) {
+            $allPlanets[$p->slug] = [
+                'name' => $locale === 'en'
+                    ? ($p->name_en ?: $p->name)
+                    : $p->name,
+
+                'desc' => $locale === 'en'
+                    ? ($p->description_en ?: $p->description)
+                    : $p->description,
+
+                'distance' => $p->distance,
+                'time'     => $p->travel_time,
+            ];
         }
 
-        // 4) Données pour la vue
-        $data = $planets[$planet];
-
+        // J’envoie exactement ce que ta vue resources/views/pages/destinations.blade.php utilise :
+        // - $planet  (slug courant)
+        // - $data    (données de la planète courante)
+        // - $planets (toutes les planètes pour les onglets)
         return view('pages.destinations', [
-            'planet'  => $planet,
+            'planet'  => $current->slug,
             'data'    => $data,
-            'planets' => $planets, // pour construire les onglets
+            'planets' => $allPlanets,
         ]);
     }
 }
