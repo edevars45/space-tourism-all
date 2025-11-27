@@ -1,135 +1,73 @@
-{{-- ===========================================================
-   PAGE TECHNOLOGY — Partie 05
-   - Mobile : image en premier, boutons 1/2/3 horizontaux, texte en dessous
-   - Desktop : colonnes, boutons verticaux, image à droite
-   - A11y : role="tablist", role="tab", aria-selected
-   - Animations : fade entre slides
-   =========================================================== --}}
+@php
+    $locale = $locale ?? app()->getLocale();
+
+    $title = '';
+    $description = '';
+    $imageUrl = null;
+
+    if ($currentTechnology) {
+        if ($locale === 'en') {
+            $title = $currentTechnology->name_en ?: $currentTechnology->name;
+            $description = $currentTechnology->description_en ?: $currentTechnology->description;
+        } else {
+            $title = $currentTechnology->name;
+            $description = $currentTechnology->description;
+        }
+
+        if ($currentTechnology->image_path) {
+            $imageUrl = asset('storage/' . $currentTechnology->image_path);
+        } else {
+            $imageUrl = asset('images/technology/image-launch-vehicle-landscape.jpg');
+        }
+    }
+@endphp
 
 @extends('layouts.app')
 @section('title', __('technology.title'))
 
 @section('content')
-<section
-  class="min-h-screen bg-no-repeat bg-cover bg-center relative overflow-hidden"
-  style="background-image: url('{{ asset('images/technology/background-stars.jpg') }}');"
->
-  <div class="absolute inset-0 bg-black/45"></div>
+<section class="relative min-h-screen text-white overflow-hidden">
 
-  <div class="relative z-10 max-w-6xl mx-auto px-6 md:px-10 lg:px-12 pt-10 md:pt-14 lg:pt-16 pb-10 md:pb-14">
-    <h1 class="font-barlow-condensed uppercase text-center md:text-left mb-8 md:mb-12 tracking-[0.25em] text-sm md:text-base text-gray-300">
-      <span class="font-bold text-white/70 mr-3">03</span> {{ __('technology.heading') }}
-    </h1>
+    <img src="{{ asset('images/technology/background.jpg') }}" alt="" class="absolute inset-0 w-full h-full object-cover -z-10">
+    <div class="absolute inset-0 bg-black/50 -z-10"></div>
 
-    @php
-      // J’utilise la même image si tu n’as que des versions desktop.
-      // Si tu as des variantes mobile, remplace 'imgMobile' par le bon chemin.
-      $techs = [
-        ['key' => 'launch',    'imgDesk' => asset('images/technology/launch-vehicle.jpg'),  'imgMobile' => asset('images/technology/launch-vehicle.jpg')],
-        ['key' => 'spaceport', 'imgDesk' => asset('images/technology/spaceport.jpg'),       'imgMobile' => asset('images/technology/spaceport.jpg')],
-        ['key' => 'capsule',   'imgDesk' => asset('images/technology/space-capsule.jpg'),   'imgMobile' => asset('images/technology/space-capsule.jpg')],
-      ];
-    @endphp
+    <div class="relative z-10 max-w-6xl mx-auto px-6 py-16 md:py-24 lg:flex lg:items-center lg:gap-16">
 
-    @foreach ($techs as $i => $t)
-      <article
-        class="tech-slide {{ $i === 0 ? 'opacity-100' : 'opacity-0 hidden' }}
-               transition-opacity duration-500 grid md:grid-cols-2 gap-10 lg:gap-14 items-center"
-        data-index="{{ $i }}"
-        aria-labelledby="tech-title-{{ $i }}">
+        <div class="flex-1">
 
-        {{-- IMAGE : en mobile je la mets en premier, pleine largeur --}}
-        <div class="order-1 md:order-2 flex justify-center md:justify-end">
-          <img
-            src="{{ $t['imgMobile'] }}"
-            alt="{{ __('technology.'.$t['key'].'.title') }}"
-            class="block md:hidden w-full max-w-[480px] h-auto object-contain mb-6"
-          >
-          <img
-            src="{{ $t['imgDesk'] }}"
-            alt="{{ __('technology.'.$t['key'].'.title') }}"
-            class="hidden md:block w-80 md:w-96 lg:w-[520px] h-auto object-contain"
-          >
-        </div>
+            <h1 class="font-barlow-condensed uppercase tracking-[0.25em] text-[#D0D6F9] text-sm md:text-base mb-10">
+                <span class="font-bold text-white/70 mr-3">03</span>
+                {{ __('technology.heading') }}
+            </h1>
 
-        {{-- CONTENU + BOUTONS --}}
-        <div class="order-2 md:order-1 flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12">
-          {{-- BOUTONS 1/2/3 : horizontaux en mobile, verticaux en desktop --}}
-          <div class="flex md:flex-col gap-4 justify-center"
-               role="tablist" aria-label="{{ __('technology.title') }}">
-            @foreach ($techs as $j => $tech)
-              @php $isActive = $j === $i; @endphp
-              <button type="button"
-                      class="tech-dot h-12 w-12 rounded-full border-2 border-white flex items-center justify-center
-                             font-bold text-lg transition
-                             {{ $isActive ? 'bg-white text-black' : 'bg-transparent text-white hover:bg-white/20 hover:scale-110' }}"
-                      data-goto="{{ $j }}"
-                      role="tab"
-                      aria-selected="{{ $isActive ? 'true' : 'false' }}"
-                      aria-controls="tech-panel-{{ $j }}"
-                      aria-label="{{ __('technology.goto_tech') }} {{ $j+1 }}">
-                {{ $j+1 }}
-              </button>
-            @endforeach
-          </div>
+            <div class="flex gap-4 mb-10" aria-label="{{ __('technology.heading') }}">
+                @foreach($technologies as $index => $tech)
+                    @php
+                        $isActive = $currentTechnology && $tech->id === $currentTechnology->id;
+                    @endphp
+                    <a href="{{ route('technology', ['slug' => $tech->slug]) }}"
+                       class="w-10 h-10 rounded-full border flex items-center justify-center text-sm {{ $isActive ? 'bg-white text-black border-white' : 'border-white/40 text-white hover:bg-white/20' }}"
+                       aria-current="{{ $isActive ? 'page' : 'false' }}">
+                        {{ $index + 1 }}
+                    </a>
+                @endforeach
+            </div>
 
-          {{-- TEXTE --}}
-          <div id="tech-panel-{{ $i }}" class="text-center md:text-left">
-            <p class="uppercase font-barlow-condensed tracking-widest text-gray-400 mb-2">
-              {{ __('technology.'.$t['key'].'.terminology') }}
-            </p>
-            <h2 id="tech-title-{{ $i }}" class="text-3xl md:text-5xl font-bellefair uppercase mb-4">
-              {{ __('technology.'.$t['key'].'.title') }}
+            <h2 class="font-bellefair text-4xl md:text-5xl lg:text-6xl uppercase mb-6">
+                {{ $title }}
             </h2>
-            <p class="text-gray-200 leading-relaxed max-w-xl font-barlow">
-              {{ __('technology.'.$t['key'].'.desc') }}
+
+            <p class="font-barlow text-[15px] md:text-base leading-relaxed text-[#D0D6F9] max-w-xl">
+                {{ $description }}
             </p>
-          </div>
         </div>
-      </article>
-    @endforeach
-  </div>
+
+        <div class="flex-1 flex justify-center lg:justify-end mt-12 lg:mt-0">
+            @if($imageUrl)
+                <img src="{{ $imageUrl }}" alt="{{ $title }}" class="w-72 md:w-80 lg:w-[420px] object-contain">
+            @endif
+        </div>
+
+    </div>
 </section>
-
-{{-- SLIDER --}}
-<script>
-(function () {
-  const slides = Array.from(document.querySelectorAll('.tech-slide'));
-  const dots   = Array.from(document.querySelectorAll('.tech-dot'));
-
-  function showSlide(index) {
-    slides.forEach((s, i) => {
-      if (i === index) {
-        s.classList.remove('hidden', 'opacity-0');
-        s.classList.add('opacity-100');
-      } else {
-        s.classList.add('opacity-0');
-        // j’attends la fin de la transition avant d’ajouter hidden
-        setTimeout(() => s.classList.add('hidden'), 300);
-      }
-    });
-
-    dots.forEach((d, i) => {
-      const active = i === index;
-      d.setAttribute('aria-selected', active ? 'true' : 'false');
-      d.classList.toggle('bg-white', active);
-      d.classList.toggle('text-black', active);
-      d.classList.toggle('bg-transparent', !active);
-      d.classList.toggle('text-white', !active);
-    });
-  }
-
-  dots.forEach(d => {
-    d.addEventListener('click', () => showSlide(parseInt(d.dataset.goto, 10)));
-    d.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        d.click();
-      }
-    });
-  });
-
-  showSlide(0);
-})();
-</script>
 @endsection
