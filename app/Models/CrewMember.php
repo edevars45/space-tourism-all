@@ -2,16 +2,25 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class CrewMember extends Model
 {
     use HasFactory;
 
-    // Je sécurise l’assignation massive
+    protected $table = 'crew_members';
+
     protected $fillable = [
-        'name', 'slug', 'role', 'bio', 'image_path', 'is_published'
+        'name',
+        'slug',
+        'role',      // FR
+        'role_en',   // EN
+        'bio',       // FR
+        'bio_en',    // EN
+        'order',
+        'image_path',
+        'is_published',
     ];
 
     protected $casts = [

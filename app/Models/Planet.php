@@ -7,10 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class Planet extends Model
 {
     protected $fillable = [
-        'name','slug','order','description','distance','travel_time','image','published',
+        'name',
+        'name_en',
+        'slug',
+        'order',
+        'image_path',
+        'distance',
+        'travel_time',
+        'description',
+        'description_en',
+        'is_published',
     ];
 
     protected $casts = [
-        'published' => 'boolean',
+        'is_published' => 'boolean',
     ];
 }
