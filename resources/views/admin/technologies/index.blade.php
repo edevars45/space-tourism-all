@@ -1,92 +1,116 @@
-{{-- Liste des technologies (back-office) --}}
 @extends('layouts.admin')
 
-@section('title', 'Technologies — Admin')
+@section('title', 'Technologies')
 
 @section('content')
-<section class="max-w-6xl mx-auto px-6 py-8">
-  {{-- Titre + Bouton créer --}}
+  {{-- Titre + bouton --}}
   <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold">Technologies</h1>
-    @can('technologies.manage')
+    <h1 class="text-2xl font-semibold">Technologies</h1>
+
     <a href="{{ route('admin.technologies.create') }}"
-       class="inline-flex items-center px-4 py-2 rounded bg-white text-black hover:bg-gray-200">
+       class="bg-[#D0D6F9] text-black px-4 py-2 rounded">
       Nouvelle technologie
     </a>
-    @endcan
   </div>
 
-  {{-- Message flash succès --}}
+  {{-- Message de succès --}}
   @if(session('success'))
-    <div class="mb-4 rounded bg-green-600/20 text-green-200 px-4 py-3">
+    <div class="mb-4 rounded border border-green-500/40 bg-green-500/10 px-4 py-2 text-sm text-green-200">
       {{ session('success') }}
     </div>
   @endif
 
-  {{-- Tableau des enregistrements --}}
-  <div class="overflow-x-auto rounded border border-white/10">
-    <table class="w-full min-w-[700px] text-left">
-      <thead class="bg-white/5">
-      <tr class="text-sm text-gray-300">
-        <th class="px-4 py-3">#</th>
-        <th class="px-4 py-3">Nom</th>
-        <th class="px-4 py-3">Slug</th>
-        <th class="px-4 py-3">Publié</th>
-        <th class="px-4 py-3">Ordre</th>
-        <th class="px-4 py-3">Modifié le</th>
-        <th class="px-4 py-3 text-right">Actions</th>
-      </tr>
-      </thead>
+  @php
+      // Je sécurise le cas collection, array ou paginator
+      $isEmpty =
+          ($technologies instanceof \Illuminate\Support\Collection && $technologies->isEmpty())
+          || (is_array($technologies) && count($technologies) === 0)
+          || ($technologies instanceof \Illuminate\Contracts\Pagination\Paginator && $technologies->count() === 0);
+  @endphp
 
-      <tbody class="divide-y divide-white/5">
-      @forelse($items as $tech)
-        <tr class="text-sm">
-          <td class="px-4 py-3">{{ $tech->id }}</td>
-          <td class="px-4 py-3 font-medium">{{ $tech->name }}</td>
-          <td class="px-4 py-3 text-gray-400">{{ $tech->slug }}</td>
-          <td class="px-4 py-3">
-            @if($tech->is_published)
-              <span class="px-2 py-1 text-xs rounded bg-green-600/20 text-green-200">Oui</span>
-            @else
-              <span class="px-2 py-1 text-xs rounded bg-red-600/20 text-red-200">Non</span>
-            @endif
-          </td>
-          <td class="px-4 py-3">{{ $tech->order ?? '—' }}</td>
-          <td class="px-4 py-3 text-gray-400">{{ $tech->updated_at?->format('d/m/Y H:i') }}</td>
-          <td class="px-4 py-3">
-            <div class="flex items-center gap-2 justify-end">
-              @can('technologies.manage')
-                <a href="{{ route('admin.technologies.edit', $tech) }}"
-                   class="px-3 py-1 rounded bg-white/10 hover:bg-white/20">Éditer</a>
+  {{-- Si aucune techno --}}
+  @if($isEmpty)
+    <div class="border border-white/10 rounded p-6 text-white/70">
+      Aucune technologie pour le moment.
+    </div>
 
-                <form action="{{ route('admin.technologies.destroy', $tech) }}"
+  {{-- Sinon le tableau --}}
+  @else
+    <div class="overflow-x-auto border border-white/10 rounded">
+      <table class="min-w-full text-sm">
+        <thead class="bg-white/5">
+          <tr class="text-left">
+            <th class="px-4 py-3">#</th>
+            <th class="px-4 py-3">Nom</th>
+            <th class="px-4 py-3">Slug</th>
+            <th class="px-4 py-3">Publié</th>
+            <th class="px-4 py-3">Ordre</th>
+            <th class="px-4 py-3">Modifié le</th>
+            <th class="px-4 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @foreach($technologies as $technology)
+            @php
+              // on gère is_published ou published selon ta colonne
+              $published = (bool)($technology->is_published ?? $technology->published ?? false);
+            @endphp
+
+            <tr class="border-t border-white/10">
+              <td class="px-4 py-3">{{ $technology->id }}</td>
+              <td class="px-4 py-3">{{ $technology->name }}</td>
+              <td class="px-4 py-3">{{ $technology->slug }}</td>
+
+              <td class="px-4 py-3">
+                @if($published)
+                  <span class="px-2 py-1 text-xs rounded bg-green-500/20 text-green-300">
+                    Oui
+                  </span>
+                @else
+                  <span class="px-2 py-1 text-xs rounded bg-red-500/20 text-red-300">
+                    Non
+                  </span>
+                @endif
+              </td>
+
+              <td class="px-4 py-3">{{ $technology->order ?? '-' }}</td>
+
+              <td class="px-4 py-3">
+                {{ optional($technology->updated_at)->format('d/m/Y H:i') }}
+              </td>
+
+              <td class="px-4 py-3 text-right">
+                {{-- Bouton éditer --}}
+                <a href="{{ route('admin.technologies.edit', $technology) }}"
+                   class="px-3 py-1 rounded border border-white/20 mr-2">
+                  Éditer
+                </a>
+
+                {{-- Bouton supprimer --}}
+                <form action="{{ route('admin.technologies.destroy', $technology) }}"
                       method="POST"
+                      class="inline"
                       onsubmit="return confirm('Supprimer cette technologie ?');">
                   @csrf
                   @method('DELETE')
                   <button type="submit"
-                          class="px-3 py-1 rounded bg-red-600/20 hover:bg-red-600/30">
-                    Supprimer
+                          class="px-3 py-1 rounded bg-red-600/80 hover:bg-red-600">
+                    Suppr.
                   </button>
                 </form>
-              @endcan
-            </div>
-          </td>
-        </tr>
-      @empty
-        <tr>
-          <td class="px-4 py-6 text-center text-gray-400" colspan="7">
-            Aucune technologie pour le moment.
-          </td>
-        </tr>
-      @endforelse
-      </tbody>
-    </table>
-  </div>
+              </td>
+            </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
 
-  {{-- Pagination --}}
-  <div class="mt-6">
-    {{ $items->links() }}
-  </div>
-</section>
+    {{-- Pagination si nécessaire --}}
+    @if($technologies instanceof \Illuminate\Contracts\Pagination\Paginator)
+      <div class="mt-4">
+        {{ $technologies->links() }}
+      </div>
+    @endif
+  @endif
 @endsection
