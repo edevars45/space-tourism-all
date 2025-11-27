@@ -10,8 +10,13 @@ class SetLocale
 {
     public function handle($request, Closure $next)
     {
-        // langue dans la session, sinon APP_LOCALE (.env), sinon 'en'
-        $locale = Session::get('locale', config('app.locale', 'en'));
+        // On récupère la langue dans la session, sinon on prend celle du .env (APP_LOCALE) ou "fr"
+        $locale = Session::get('locale', config('app.locale', 'fr'));
+
+        if (! in_array($locale, ['fr', 'en'])) {
+            $locale = 'fr';
+        }
+
         App::setLocale($locale);
 
         return $next($request);

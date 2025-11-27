@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Session;
 // Pages publiques (maquette)
 use App\Http\Controllers\DestinationsController;
 use App\Http\Controllers\PublicCrewController;
+use App\Http\Controllers\TechnologyController as PublicTechnologyController;
 
 // Espace authentifié (Breeze)
 use App\Http\Controllers\ProfileController;
@@ -22,18 +23,26 @@ use App\Http\Controllers\Admin\CrewMemberController;
 | 1) Pages publiques (accès libre)
 |--------------------------------------------------------------------------
 */
+
+// Page d'accueil
 Route::view('/', 'pages.home')->name('home');
 
 // Destinations
 Route::redirect('/destinations', '/destinations/moon')->name('destinations');
-Route::get('/destinations/{planet?}', [DestinationsController::class, 'show'])
+
+Route::get('/destinations/{slug?}', [DestinationsController::class, 'show'])
+    ->where('slug', '[A-Za-z0-9\-]+')
     ->name('destinations.show');
 
 // Équipage public (fallback i18n si BDD vide)
-Route::get('/crew', [PublicCrewController::class, 'index'])->name('crew');
+Route::get('/crew', [PublicCrewController::class, 'index'])
+    ->name('crew');
 
-// Technologies publiques (page maquette)
-Route::view('/technology', 'pages.technology')->name('technology');
+// Technologies publiques : CORRECTION ICI
+// J'enlève la contrainte where() pour permettre les slugs avec tirets
+Route::get('/technology/{slug?}', [PublicTechnologyController::class, 'show'])
+    ->name('technology');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -43,13 +52,14 @@ Route::view('/technology', 'pages.technology')->name('technology');
 Route::middleware('auth')->group(function () {
     Route::view('/dashboard', 'pages.home')->name('dashboard');
 
-    Route::get('/profile',  [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile',   [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile',[ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Auth routes (login/register/verify/etc.)
+// Routes d'authentification (login/register/etc.)
 require __DIR__.'/auth.php';
+
 
 /*
 |--------------------------------------------------------------------------
@@ -57,21 +67,28 @@ require __DIR__.'/auth.php';
 |--------------------------------------------------------------------------
 */
 Route::get('/lang/{locale}', function (string $locale) {
-    abort_unless(in_array($locale, ['fr','en']), 404);
+    // Je vérifie que la langue est valide
+    if (!in_array($locale, ['fr', 'en'])) {
+        abort(404);
+    }
+
+    // Je sauvegarde la langue dans la session
     Session::put('locale', $locale);
     App::setLocale($locale);
-    return back();
+
+    // Je redirige vers la page précédente
+    return redirect()->back();
 })->name('lang.switch');
+
 
 /*
 |--------------------------------------------------------------------------
-| 4) Back-office — auth + verified + rôles/permissions
+| 4) Back-office — auth + rôles/permissions
 |--------------------------------------------------------------------------
-| Noms générés automatiquement : admin.users.*, admin.technologies.*, admin.planets.*, admin.crew.*
 */
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth', ])
+    ->middleware(['auth'])
     ->group(function () {
 
         // Utilisateurs — réservé aux Administrateurs
@@ -82,12 +99,6 @@ Route::prefix('admin')
         // Technologies — permission:technologies.manage
         Route::middleware(['permission:technologies.manage'])->group(function () {
             Route::resource('technologies', TechnologyController::class)->except(['show']);
-
-            // Actions additionnelles
-            Route::post('technologies/{technology}/move-up',   [TechnologyController::class, 'moveUp'])->name('technologies.moveUp');
-            Route::post('technologies/{technology}/move-down', [TechnologyController::class, 'moveDown'])->name('technologies.moveDown');
-            Route::post('technologies/bulk',                   [TechnologyController::class, 'bulk'])->name('technologies.bulk');
-            Route::post('technologies/reorder',                [TechnologyController::class, 'reorder'])->name('technologies.reorder');
         });
 
         // Planètes — permission:planets.manage
