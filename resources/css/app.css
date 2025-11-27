@@ -1,24 +1,122 @@
 /* resources/css/app.css */
 
-/* 1) Tailwind doit venir en premier */
+/* ----------------------------------------------------------
+   1. Je charge les couches Tailwind (base, components, utilities)
+   ---------------------------------------------------------- */
+
+/* Je demande à Tailwind d’injecter ses styles de base (reset, etc.). */
 @tailwind base;
+/* Je demande à Tailwind d’injecter ses composants (boutons, formulaires, etc.). */
 @tailwind components;
+/* Je demande à Tailwind d’injecter ses classes utilitaires (p-4, text-center, etc.). */
 @tailwind utilities;
 
-/* 2) Styles de base (optionnels) */
+
+/* ----------------------------------------------------------
+   2. Styles de base du site (layer base)
+   ---------------------------------------------------------- */
+
 @layer base {
+  /* J’améliore le rendu des fonts sur les navigateurs courants. */
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Je définis le style global du body : fond noir, texte blanc. */
   body {
     @apply bg-black text-white;
   }
+
+  /* Je m’assure que les liens ont un style simple par défaut. */
+  a {
+    @apply text-white hover:text-[#D0D6F9] transition-colors;
+  }
+
+  /* Je laisse le style natif des cases à cocher et des boutons radio,
+     pour que la coche du navigateur soit bien visible. */
+  input[type="checkbox"],
+  input[type="radio"] {
+    appearance: auto;
+    -webkit-appearance: auto;
+    -moz-appearance: auto;
+    /* Je garde simplement une couleur d’accent pour la coche. */
+    accent-color: #d0d6f9;
+  }
 }
 
-/* 3) Helpers de polices (les fonts sont chargées dans layouts/app.blade.php) */
+
+/* ----------------------------------------------------------
+   3. Utilitaires pour les polices (layer utilities)
+   ---------------------------------------------------------- */
+/* Les fontes sont chargées dans layouts/app.blade.php, ici je crée
+   juste des classes utilitaires pour les utiliser facilement. */
+
 @layer utilities {
-  .font-bellefair { font-family: 'Bellefair', serif; }
-  .font-barlow { font-family: 'Barlow', sans-serif; }
-  .font-barlow-condensed { font-family: 'Barlow Condensed', sans-serif; }
+  /* Je crée une classe pour la police Bellefair. */
+  .font-bellefair {
+    font-family: 'Bellefair', serif;
+  }
+
+  /* Je crée une classe pour la police Barlow. */
+  .font-barlow {
+    font-family: 'Barlow', sans-serif;
+  }
+
+  /* Je crée une classe pour la police Barlow Condensed. */
+  .font-barlow-condensed {
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+}
+
+
+/* ----------------------------------------------------------
+   4. Composants réutilisables pour le back-office (layer components)
+   ---------------------------------------------------------- */
+
+@layer components {
+  /* Je crée un style de bouton principal réutilisable (bouton plein). */
+  .btn-primary {
+    /* Je centre le texte et les icônes à l’intérieur. */
+    @apply inline-flex items-center justify-center;
+    /* Je mets un padding vertical et horizontal. */
+    @apply px-4 py-2;
+    /* Je mets une bordure claire pour bien voir le bouton. */
+    @apply border border-white/40;
+    /* Je mets un fond clair et un texte sombre pour contraster. */
+    @apply bg-white text-black;
+    /* Je mets une taille de texte petite mais lisible. */
+    @apply text-sm font-medium;
+    /* Je rends les coins arrondis. */
+    @apply rounded;
+    /* J’ajoute une transition pour le survol. */
+    @apply transition-colors;
+  }
+
+  /* Je définis l’état au survol pour le bouton principal. */
+  .btn-primary:hover {
+    /* Je fonce légèrement le fond au survol. */
+    @apply bg-gray-200;
+  }
+
+  /* Je crée un bouton contour (utile pour les actions secondaires). */
+  .btn-outline {
+    /* Même structure de base que le bouton principal. */
+    @apply inline-flex items-center justify-center;
+    @apply px-4 py-2;
+    /* Je mets seulement un contour, sans fond. */
+    @apply border border-white/40;
+    /* Je garde un texte blanc. */
+    @apply text-sm text-white;
+    /* Je rends les coins arrondis. */
+    @apply rounded;
+    /* J’ajoute une transition pour le survol. */
+    @apply transition-colors;
+  }
+
+  /* Je définis l’état au survol pour le bouton contour. */
+  .btn-outline:hover {
+    /* J’ajoute un fond léger au survol pour mieux voir l’action. */
+    @apply bg-white/10;
+  }
 }
