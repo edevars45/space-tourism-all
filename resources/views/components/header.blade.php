@@ -9,7 +9,7 @@
 <header class="w-full fixed top-0 left-0 right-0 z-50 bg-transparent">
   <div class="max-w-7xl mx-auto flex items-center gap-4 px-6 md:px-10 lg:px-16 py-5">
 
-    {{-- Logo (assure-toi d’avoir /public/images/logo.svg) --}}
+    {{-- Logo (assure-toi d'avoir /public/images/logo.svg) --}}
     <a href="{{ route('home') }}" class="shrink-0" aria-label="Space Tourism">
       <img src="{{ asset('images/logo.jpg') }}" alt="Logo" class="h-10 w-10">
     </a>
@@ -45,6 +45,33 @@
       <span class="px-1 opacity-50">/</span>
       <a href="{{ route('lang.switch','en') }}"
          class="px-2 text-sm {{ $loc==='en' ? 'underline' : 'opacity-70 hover:opacity-100' }}">EN</a>
+    </div>
+
+    {{-- BOUTON CONNEXION / ADMIN (md+) --}}
+    <div class="hidden md:flex ml-2">
+      @auth
+        {{-- Utilisateur connecté : bouton Admin --}}
+        <a href="{{ route('dashboard') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-black bg-white rounded hover:bg-gray-200 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          Admin
+        </a>
+      @else
+        {{-- Utilisateur non connecté : bouton Connexion --}}
+        <a href="{{ route('login') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-black bg-white rounded hover:bg-gray-200 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+          </svg>
+          {{ __('Connexion') }}
+        </a>
+      @endauth
     </div>
 
     {{-- BOUTON BURGER (mobile uniquement) --}}
@@ -108,11 +135,37 @@
         <a href="{{ route('lang.switch','en') }}"
            class="{{ $loc==='en' ? 'underline' : 'opacity-70 hover:opacity-100' }}">EN</a>
       </li>
+
+      {{-- BOUTON CONNEXION / ADMIN (mobile) --}}
+      <li class="mt-2 border-t border-white/10"></li>
+      <li class="px-4 pt-3">
+        @auth
+          <a href="{{ route('dashboard') }}"
+             class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-black bg-white rounded hover:bg-gray-200 transition-colors w-full justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            Admin
+          </a>
+        @else
+          <a href="{{ route('login') }}"
+             class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-black bg-white rounded hover:bg-gray-200 transition-colors w-full justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+            </svg>
+            {{ __('Connexion') }}
+          </a>
+        @endauth
+      </li>
     </ul>
   </nav>
 </header>
 
-{{-- JS minimal pour ouvrir/fermer le burger (pas d’alpine requis) --}}
+{{-- JS minimal pour ouvrir/fermer le burger (pas d'alpine requis) --}}
 <script>
   (function () {
     const toggle = document.getElementById('nav-toggle');
