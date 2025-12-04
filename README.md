@@ -45,3 +45,4 @@ cd space-tourism-partie07
 composer install
 npm install
 cp .env.example .env
+"# space-tourism-all" 
