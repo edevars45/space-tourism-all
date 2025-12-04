@@ -1,6 +1,4 @@
-{{-- resources/views/pages/technology.blade.php --}}
-
-@php
+<?php
     /** @var \Illuminate\Support\Collection|\App\Models\Technology[] $technologies */
     /** @var \App\Models\Technology|null $currentTechnology */
 
@@ -38,17 +36,17 @@
             $imageUrl = asset('images/technology/launch-vehicle.jpg');
         }
     }
-@endphp
+?>
 
-@extends('layouts.app')
-@section('title', __('technology.title'))
 
-@section('content')
+<?php $__env->startSection('title', __('technology.title')); ?>
+
+<?php $__env->startSection('content'); ?>
 <section class="relative min-h-screen text-white overflow-hidden">
 
-    {{-- ✅ CORRECTION : background-stars.jpg au lieu de background.jpg --}}
+    
     <img
-        src="{{ asset('images/technology/background-stars.jpg') }}"
+        src="<?php echo e(asset('images/technology/background-stars.jpg')); ?>"
         alt=""
         class="absolute inset-0 w-full h-full object-cover -z-10"
     >
@@ -56,69 +54,76 @@
 
     <div class="relative z-10 max-w-6xl mx-auto px-6 py-16 md:py-24 lg:flex lg:items-center lg:gap-16">
 
-        {{-- Colonne gauche : texte --}}
+        
         <div class="flex-1">
 
-            {{-- Titre principal "03 SPACE LAUNCH TECHNOLOGY" --}}
+            
             <h1 class="font-barlow-condensed uppercase tracking-[0.25em] text-[#D0D6F9] text-sm md:text-base mb-10">
                 <span class="font-bold text-white/70 mr-3">03</span>
-                {{ __('technology.heading') }}
+                <?php echo e(__('technology.heading')); ?>
+
             </h1>
 
-            {{-- Boutons 1 / 2 / 3 reliés aux slugs BD --}}
-            <div class="flex gap-4 mb-10" aria-label="{{ __('technology.heading') }}">
-                @foreach($technologies as $index => $tech)
-                    @php
+            
+            <div class="flex gap-4 mb-10" aria-label="<?php echo e(__('technology.heading')); ?>">
+                <?php $__currentLoopData = $technologies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $tech): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
                         // Je vérifie si ce bouton correspond à la techno active
                         $isActive = $currentTechnology && $tech->id === $currentTechnology->id;
-                    @endphp
+                    ?>
                     <a
-                        href="{{ route('technology', ['slug' => $tech->slug]) }}"
+                        href="<?php echo e(route('technology', ['slug' => $tech->slug])); ?>"
                         class="w-10 h-10 rounded-full border flex items-center justify-center text-sm
-                               {{ $isActive ? 'bg-white text-black border-white' : 'border-white/40 text-white hover:bg-white/20' }}"
-                        aria-current="{{ $isActive ? 'page' : 'false' }}"
+                               <?php echo e($isActive ? 'bg-white text-black border-white' : 'border-white/40 text-white hover:bg-white/20'); ?>"
+                        aria-current="<?php echo e($isActive ? 'page' : 'false'); ?>"
                     >
-                        {{ $index + 1 }}
+                        <?php echo e($index + 1); ?>
+
                     </a>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
 
-            {{-- Sous-titre "The terminology..." --}}
+            
             <p class="font-barlow-condensed uppercase tracking-[0.25em] text-sm text-[#D0D6F9] mb-4">
-                {{ __('technology.terminology') }}
+                <?php echo e(__('technology.terminology')); ?>
+
             </p>
 
-            {{-- Titre de la techno active (FR ou EN selon la langue) --}}
+            
             <h2 class="font-bellefair text-4xl md:text-5xl lg:text-6xl uppercase mb-6">
-                {{ $title }}
+                <?php echo e($title); ?>
+
             </h2>
 
-            {{-- Description de la techno active (FR ou EN selon la langue) --}}
+            
             <p class="font-barlow text-[15px] md:text-base leading-relaxed text-[#D0D6F9] max-w-xl">
-                {{ $description }}
+                <?php echo e($description); ?>
+
             </p>
         </div>
 
-        {{-- Colonne droite : petit libellé + image --}}
+        
         <div class="flex-1 flex flex-col items-center lg:items-end mt-12 lg:mt-0">
 
-            {{-- Petit libellé à droite : j'affiche toujours la version EN du nom --}}
-            @if($currentTechnology)
+            
+            <?php if($currentTechnology): ?>
                 <p class="font-barlow-condensed uppercase tracking-[0.25em] text-xs text-[#D0D6F9] mb-6">
-                    {{ $nameEn }}
-                </p>
-            @endif
+                    <?php echo e($nameEn); ?>
 
-            {{-- Image de la techno active (chemin venant de image_path) --}}
-            @if($imageUrl)
+                </p>
+            <?php endif; ?>
+
+            
+            <?php if($imageUrl): ?>
                 <img
-                    src="{{ $imageUrl }}"
-                    alt="{{ $title }}"
+                    src="<?php echo e($imageUrl); ?>"
+                    alt="<?php echo e($title); ?>"
                     class="w-72 md:w-80 lg:w-[420px] object-contain"
                 >
-            @endif
+            <?php endif; ?>
         </div>
 
     </div>
 </section>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\space-tourism-all\resources\views/pages/technology.blade.php ENDPATH**/ ?>
