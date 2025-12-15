@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Service Application Laravel
+  space-tourism-all-app:
+    build:
+      context: .
+      dockerfile: docker/apache/Dockerfile
+    container_name: space-tourism-all-app
+    ports:
+      - "8001:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - space-tourism-all-db
+    networks:
+      - space-tourism-all-network
+
+  # Service Base de données MySQL
+  space-tourism-all-db:
+    image: mysql:8.4
+    container_name: space-tourism-all-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: space_tourism_all
+      MYSQL_USER: space_user
+      MYSQL_PASSWORD: space_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - space-tourism-all-db-data:/var/lib/mysql
+    networks:
+      - space-tourism-all-network
+
+  # Service phpMyAdmin
+  space-tourism-all-phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: space-tourism-all-phpmyadmin
+    environment:
+      PMA_HOST: space-tourism-all-db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8003:80"
+    depends_on:
+      - space-tourism-all-db
+    networks:
+      - space-tourism-all-network
+
+networks:
+  space-tourism-all-network:
+    driver: bridge
+
+volumes:
+  space-tourism-all-db-data:

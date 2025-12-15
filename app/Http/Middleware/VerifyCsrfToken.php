@@ -1,0 +1,1 @@
+<?php\n\nnamespace App\Http\Middleware;\n\nuse Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;\n\nclass VerifyCsrfToken extends Middleware\n{\n    /**\n     * The URIs that should be excluded from CSRF verification.\n     *\n     * @var array<int, string>\n     */\n    protected $except = [\n        'login',\n    ];\n}

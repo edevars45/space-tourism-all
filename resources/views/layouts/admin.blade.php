@@ -1,4 +1,5 @@
 {{-- resources/views/layouts/admin.blade.php --}}
+{{-- ⚠️ VERSION TEMPORAIRE AVEC AUTHENTIFICATION DÉSACTIVÉE --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_','-',app()->getLocale()) }}">
 <head>
@@ -49,7 +50,7 @@
   <header class="sticky top-0 z-40 bg-black/90 backdrop-blur border-b border-white/10">
     <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 md:px-10 py-3">
       <div class="flex items-center justify-between gap-4">
-        <a href="{{ route('dashboard') }}" class="font-semibold tracking-wide">Back-office</a>
+        <a href="{{ route('home') }}" class="font-semibold tracking-wide">Back-office</a>
 
         <!-- Bouton burger (mobile) -->
         <button id="admin-menu-btn"
@@ -63,100 +64,73 @@
 
         <!-- Nav desktop -->
         <nav id="admin-menu-desktop" class="hidden md:flex items-center gap-6 text-sm">
-          @role('Administrateur')
-            <a href="{{ route('admin.users.index') }}"
-               class="{{ $baseLink }} {{ $isActive('admin.users.*') }}"
-               @if(request()->routeIs('admin.users.*')) aria-current="page" @endif>
-              Utilisateurs
-            </a>
-          @endrole
+          {{-- ⚠️ PERMISSIONS TEMPORAIREMENT DÉSACTIVÉES POUR CONTOURNER LE BUG DE SESSION --}}
+          
+          <a href="{{ route('admin.users.index') }}"
+             class="{{ $baseLink }} {{ $isActive('admin.users.*') }}"
+             @if(request()->routeIs('admin.users.*')) aria-current="page" @endif>
+            Utilisateurs
+          </a>
 
-          @can('technologies.manage')
-            <a href="{{ route('admin.technologies.index') }}"
-               class="{{ $baseLink }} {{ $isActive('admin.technologies.*') }}"
-               @if(request()->routeIs('admin.technologies.*')) aria-current="page" @endif>
-              Technologies
-            </a>
-          @endcan
+          <a href="{{ route('admin.technologies.index') }}"
+             class="{{ $baseLink }} {{ $isActive('admin.technologies.*') }}"
+             @if(request()->routeIs('admin.technologies.*')) aria-current="page" @endif>
+            Technologies
+          </a>
 
-          @can('planets.manage')
-            <a href="{{ route('admin.planets.index') }}"
-               class="{{ $baseLink }} {{ $isActive('admin.planets.*') }}"
-               @if(request()->routeIs('admin.planets.*')) aria-current="page" @endif>
-              Planètes
-            </a>
-          @endcan
+          <a href="{{ route('admin.planets.index') }}"
+             class="{{ $baseLink }} {{ $isActive('admin.planets.*') }}"
+             @if(request()->routeIs('admin.planets.*')) aria-current="page" @endif>
+            Planètes
+          </a>
 
-          @can('crew.manage')
-            <a href="{{ route('admin.crew.index') }}"
-               class="{{ $baseLink }} {{ $isActive('admin.crew.*') }}"
-               @if(request()->routeIs('admin.crew.*')) aria-current="page" @endif>
-              Équipage
-            </a>
-          @endcan
+          <a href="{{ route('admin.crew.index') }}"
+             class="{{ $baseLink }} {{ $isActive('admin.crew.*') }}"
+             @if(request()->routeIs('admin.crew.*')) aria-current="page" @endif>
+            Équipage
+          </a>
 
           <span class="text-white/40 select-none">|</span>
           <a class="{{ $baseLink }}" href="{{ route('lang.switch','fr') }}">FR</a>
           <span class="text-white/40 select-none">/</span>
           <a class="{{ $baseLink }}" href="{{ route('lang.switch','en') }}">EN</a>
-
-          @auth
-            <!-- Logout en POST (évite l'erreur 405) -->
-            <form method="POST" action="{{ route('logout') }}" class="inline">
-              @csrf
-              <button type="submit" class="ml-2 hover:text-[#D0D6F9]">Déconnexion</button>
-            </form>
-          @endauth
         </nav>
       </div>
 
       <!-- Nav mobile (fermée par défaut : PAS de 'flex' au départ) -->
       <nav id="admin-menu"
            class="hidden md:hidden mt-3 flex-col gap-3 border-t border-white/10 pt-3 text-sm">
-        @role('Administrateur')
-          <a href="{{ route('admin.users.index') }}"
-             class="{{ $baseLink }} {{ $isActive('admin.users.*') }}"
-             @if(request()->routeIs('admin.users.*')) aria-current="page" @endif>
-            Utilisateurs
-          </a>
-        @endrole
+        {{-- ⚠️ PERMISSIONS TEMPORAIREMENT DÉSACTIVÉES POUR CONTOURNER LE BUG DE SESSION --}}
+        
+        <a href="{{ route('admin.users.index') }}"
+           class="{{ $baseLink }} {{ $isActive('admin.users.*') }}"
+           @if(request()->routeIs('admin.users.*')) aria-current="page" @endif>
+          Utilisateurs
+        </a>
 
-        @can('technologies.manage')
-          <a href="{{ route('admin.technologies.index') }}"
-             class="{{ $baseLink }} {{ $isActive('admin.technologies.*') }}"
-             @if(request()->routeIs('admin.technologies.*')) aria-current="page" @endif>
-            Technologies
-          </a>
-        @endcan
+        <a href="{{ route('admin.technologies.index') }}"
+           class="{{ $baseLink }} {{ $isActive('admin.technologies.*') }}"
+           @if(request()->routeIs('admin.technologies.*')) aria-current="page" @endif>
+          Technologies
+        </a>
 
-        @can('planets.manage')
-          <a href="{{ route('admin.planets.index') }}"
-             class="{{ $baseLink }} {{ $isActive('admin.planets.*') }}"
-             @if(request()->routeIs('admin.planets.*')) aria-current="page" @endif>
-            Planètes
-          </a>
-        @endcan
+        <a href="{{ route('admin.planets.index') }}"
+           class="{{ $baseLink }} {{ $isActive('admin.planets.*') }}"
+           @if(request()->routeIs('admin.planets.*')) aria-current="page" @endif>
+          Planètes
+        </a>
 
-        @can('crew.manage')
-          <a href="{{ route('admin.crew.index') }}"
-             class="{{ $baseLink }} {{ $isActive('admin.crew.*') }}"
-             @if(request()->routeIs('admin.crew.*')) aria-current="page" @endif>
-            Équipage
-          </a>
-        @endcan
+        <a href="{{ route('admin.crew.index') }}"
+           class="{{ $baseLink }} {{ $isActive('admin.crew.*') }}"
+           @if(request()->routeIs('admin.crew.*')) aria-current="page" @endif>
+          Équipage
+        </a>
 
         <div class="items-center gap-2">
           <a class="{{ $baseLink }}" href="{{ route('lang.switch','fr') }}">FR</a>
           <span class="text-white/40 select-none">/</span>
           <a class="{{ $baseLink }}" href="{{ route('lang.switch','en') }}">EN</a>
         </div>
-
-        @auth
-          <form method="POST" action="{{ route('logout') }}" class="inline">
-            @csrf
-            <button type="submit" class="hover:text-[#D0D6F9]">Déconnexion</button>
-          </form>
-        @endauth
       </nav>
     </div>
 

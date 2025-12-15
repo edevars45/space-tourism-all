@@ -24,15 +24,15 @@ class CrewMembersSeeder extends Seeder
                 'role'       => 'Commandant',
                 'name'       => 'Douglas Hurley',
                 'bio'        => "Douglas Gerald Hurley est un ingénieur et ancien astronaute.",
-                'photo_path' => 'crew/douglas-hurley.png',
+                'photo_path' => 'crew/douglas-hurley.webp',
                 'published'  => true,
             ],
             [
                 'order'      => 2,
                 'role'       => 'Pilote',
                 'name'       => 'Victor Glover',
-                'bio'        => "Pilote d’essai et astronaute de la NASA.",
-                'photo_path' => 'crew/victor-glover.png',
+                'bio'        => "Pilote d'essai et astronaute de la NASA.",
+                'photo_path' => 'crew/victor-glover.webp',
                 'published'  => true,
             ],
             [
@@ -40,7 +40,7 @@ class CrewMembersSeeder extends Seeder
                 'role'       => 'Spécialiste de mission',
                 'name'       => 'Mark Shuttleworth',
                 'bio'        => "Entrepreneur et premier touriste spatial africain.",
-                'photo_path' => 'crew/mark-shuttleworth.png',
+                'photo_path' => 'crew/mark-shuttleworth.webp',
                 'published'  => true,
             ],
             [
@@ -48,7 +48,7 @@ class CrewMembersSeeder extends Seeder
                 'role'       => 'Ingénieure',
                 'name'       => 'Anousheh Ansari',
                 'bio'        => "Ingénieure et première femme touriste spatiale.",
-                'photo_path' => 'crew/anousheh-ansari.png',
+                'photo_path' => 'crew/anousheh-ansari.webp',
                 'published'  => true,
             ],
         ];
@@ -69,7 +69,7 @@ class CrewMembersSeeder extends Seeder
             // Ne garder que les clés existantes dans la table
             $filtered = array_intersect_key($row, array_flip($cols));
 
-            // Déterminer la clé d’unicité pour l’upsert
+            // Déterminer la clé d'unicité pour l'upsert
             $unique = in_array('slug', $cols)
                 ? ['slug']
                 : (in_array('name', $cols) && in_array('role', $cols) ? ['name','role'] : ['name']);

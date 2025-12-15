@@ -5,7 +5,7 @@
     "name": "Douglas Hurley",
     "slug": "douglas-hurley",
     "bio": "Douglas Gerald Hurley est un ingénieur et ancien astronaute.",
-    "image_path": "crew/douglas-hurley.png",
+    "image_path": "crew/douglas-hurley.webp",
     "published": true
   },
   {
@@ -13,8 +13,8 @@
     "role": "Pilote",
     "name": "Victor Glover",
     "slug": "victor-glover",
-    "bio": "Pilote d’essai et astronaute de la NASA.",
-    "image_path": "crew/victor-glover.png",
+    "bio": "Pilote d'essai et astronaute de la NASA.",
+    "image_path": "crew/victor-glover.webp",
     "published": true
   },
   {
@@ -23,7 +23,7 @@
     "name": "Mark Shuttleworth",
     "slug": "mark-shuttleworth",
     "bio": "Entrepreneur sud-africain et premier touriste spatial africain.",
-    "image_path": "crew/mark-shuttleworth.png",
+    "image_path": "crew/mark-shuttleworth.webp",
     "published": true
   },
   {
@@ -32,7 +32,7 @@
     "name": "Anousheh Ansari",
     "slug": "anousheh-ansari",
     "bio": "Ingénieure et première femme touriste spatiale.",
-    "image_path": "crew/anousheh-ansari.png",
+    "image_path": "crew/anousheh-ansari.webp",
     "published": true
   }
 ]
